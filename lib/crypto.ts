@@ -21,7 +21,7 @@ export async function deriveKey(password: string, salt: Uint8Array): Promise<Uin
   const derivedBits = await crypto.subtle.deriveBits(
     {
       name: 'PBKDF2',
-      salt: salt,
+      salt: salt as any,
       iterations: ITERATIONS,
       hash: 'SHA-256',
     },
@@ -39,7 +39,7 @@ export function generateKeyPair() {
   const pair = nacl.box.keyPair();
   return {
     publicKey: encodeBase64(pair.publicKey),
-    privateKey: encodeBase64(pair.privateKey),
+    privateKey: encodeBase64(pair.secretKey),
   };
 }
 
