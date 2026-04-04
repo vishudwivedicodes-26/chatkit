@@ -1,19 +1,22 @@
 "use client";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const ITEMS = [
-  { icon: "key", label: "Account", desc: "Security, two-factor authentication" },
-  { icon: "lock", label: "Privacy", desc: "Block users, disappearing messages" },
-  { icon: "chat", label: "Chats", desc: "Theme, wallpaper, chat history" },
-  { icon: "bell", label: "Notifications", desc: "Message and call tones" },
-  { icon: "shield", label: "Security", desc: "Encryption keys, sessions" },
-  { icon: "db", label: "Storage & Data", desc: "Network usage, auto-download" },
-  { icon: "globe", label: "Language", desc: "English" },
-  { icon: "help", label: "Help", desc: "FAQ, contact support" },
+  { icon: "key", label: "Account", desc: "Security, two-factor authentication", href: "/settings/account" },
+  { icon: "lock", label: "Privacy", desc: "Block users, disappearing messages", href: "/settings/privacy" },
+  { icon: "chat", label: "Chats", desc: "Theme, wallpaper, chat history", href: "/settings/chats" },
+  { icon: "bell", label: "Notifications", desc: "Message and call tones", href: "/settings/notifications" },
+  { icon: "shield", label: "Security", desc: "Encryption keys, sessions", href: "/settings/security" },
+  { icon: "db", label: "Storage & Data", desc: "Network usage, auto-download", href: "/settings/storage" },
+  { icon: "globe", label: "Language", desc: "English", href: "/settings/language" },
+  { icon: "help", label: "Help", desc: "FAQ, contact support", href: "/settings/help" },
 ];
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { user } = useAuthStore();
+
   return (
     <div style={{ position: "fixed", inset: 0, background: "var(--bg-0)", display: "flex", flexDirection: "column" }}>
       <div style={{ height: 52, background: "var(--bg-1)", display: "flex", alignItems: "center", padding: "0 16px", borderBottom: "1px solid var(--border)" }}>
@@ -25,18 +28,19 @@ export default function SettingsPage() {
 
       <div style={{ flex: 1, overflowY: "auto" }}>
         {/* profile */}
-        <div onClick={() => router.push("/profile")} style={{ display: "flex", alignItems: "center", padding: "16px", cursor: "pointer", borderBottom: "1px solid var(--border)" }}
-          onMouseOver={e => e.currentTarget.style.background = "var(--bg-2)"}
-          onMouseOut={e => e.currentTarget.style.background = "transparent"}>
-          <div style={{ width: 64, height: 64, borderRadius: "50%", background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, fontWeight: 700, color: "#fff", flexShrink: 0 }}>A</div>
-          <div style={{ flex: 1, marginLeft: 14 }}>
-            <div style={{ color: "var(--t1)", fontSize: 17, fontWeight: 600 }}>Anonymous User</div>
-            <div style={{ color: "var(--t2)", fontSize: 13, marginTop: 2 }}>Hey there! I am using ChatKit</div>
+        <div style={{ display: "flex", alignItems: "center", padding: "20px 16px", borderBottom: "1px solid var(--border)" }}>
+          <div style={{ width: 64, height: 64, borderRadius: "50%", background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, fontWeight: 700, color: "#fff", flexShrink: 0 }}>
+            {user?.display_name?.slice(0, 1).toUpperCase() || "?"}
+          </div>
+          <div style={{ flex: 1, marginLeft: 16 }}>
+            <div style={{ color: "var(--t1)", fontSize: 18, fontWeight: 600 }}>{user?.display_name || "Anonymous User"}</div>
+            <div style={{ color: "var(--accent)", fontSize: 13, fontWeight: 600, marginTop: 4, letterSpacing: 1 }}>UID: {user?.uid || "0000000000"}</div>
+            <div style={{ color: "var(--t2)", fontSize: 13, marginTop: 4 }}>@{user?.username || "unknown"}</div>
           </div>
         </div>
 
         {ITEMS.map((item, i) => (
-          <div key={i} style={{ display: "flex", alignItems: "center", padding: "13px 18px", cursor: "pointer", borderBottom: "1px solid var(--border)" }}
+          <div key={i} onClick={() => router.push(item.href)} style={{ display: "flex", alignItems: "center", padding: "13px 18px", cursor: "pointer", borderBottom: "1px solid var(--border)" }}
             onMouseOver={e => e.currentTarget.style.background = "var(--bg-2)"}
             onMouseOut={e => e.currentTarget.style.background = "transparent"}>
             <div style={{ width: 34, display: "flex", justifyContent: "center", flexShrink: 0 }}><SIcon type={item.icon} /></div>
@@ -50,10 +54,10 @@ export default function SettingsPage() {
         <div style={{ padding: "18px", borderTop: "4px solid var(--bg-2)", marginTop: 4 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
-            <span style={{ color: "var(--accent)", fontSize: 14, fontWeight: 500 }}>Invite a friend</span>
+            <span style={{ color: "var(--accent)", fontSize: 14, fontWeight: 500 }}>Share UID with a friend</span>
           </div>
         </div>
-        <p style={{ color: "var(--t3)", fontSize: 11, textAlign: "center", padding: "12px 0 28px" }}>ChatKit v1.0 · E2E Encrypted</p>
+        <p style={{ color: "var(--t3)", fontSize: 11, textAlign: "center", padding: "12px 0 28px" }}>CipherTalk v1.0 · Military-Grade E2E</p>
       </div>
     </div>
   );

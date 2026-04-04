@@ -5,6 +5,7 @@ import { clsx } from "clsx";
 
 export default function ChatsLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  // We want to detect if we're exactly at the chats list page (/chats)
   const isChatList = pathname === "/chats";
 
   return (
@@ -19,13 +20,12 @@ export default function ChatsLayout({ children }: { children: React.ReactNode })
       <div 
         className={clsx(
           "desktop-sidebar",
-          !isChatList && "mobile-only" // Hide sidebar on mobile if in a chat
+          !isChatList && "hide-on-mobile" // Hide sidebar on mobile if a specific chat (/chats/[id]) is open
         )}
         style={{
           width: "100%",
           maxWidth: "400px",
           height: "100%",
-          borderRight: "1px solid var(--border)",
           flexShrink: 0,
         }}
       >
@@ -35,7 +35,7 @@ export default function ChatsLayout({ children }: { children: React.ReactNode })
       {/* Main Content - Chat Window / Placeholder */}
       <div 
         className={clsx(
-          isChatList && "mobile-only" // Hide main area on mobile if in chat list
+          isChatList && "hide-on-mobile" // Hide main area/placeholder on mobile if we're in the chat list (/chats)
         )}
         style={{ 
           flex: 1, 

@@ -21,12 +21,11 @@
 
 /* ═══ RESPONSIVE UTILITIES ═══ */
 @media (min-width: 768px) {
-  .mobile-only { display: none !important; }
-  .desktop-hide { display: none !important; }
+  .hide-on-desktop { display: none !important; }
 }
 
 @media (max-width: 767px) {
-  .desktop-only { display: none !important; }
+  .hide-on-mobile { display: none !important; }
 }
 
 html, body {

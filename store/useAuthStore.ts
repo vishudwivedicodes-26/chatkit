@@ -8,6 +8,7 @@ type AuthState = {
     username: string;
     display_name: string;
     avatar_id: string;
+    public_key: string;
   } | null;
   privateKeyBase64: string | null;
   isAuthenticated: boolean;
@@ -43,15 +44,12 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'cipher-auth-storage',
-      // We purposefully don't persist privateKeyBase64 in localstorage in a real app,
-      // but for this implementation we rely on it being encrypted or stored in IndexedDB.
-      // Here we will use Zustand persist for standard UI state, but sensitive 
-      // keys should ideally be in IndexedDB. For simplicity, we'll configure
-      // persist to omit sensitive fields if needed, but the prompt says:
-      // "stored locally in the browser (IndexedDB)".
-      // For now, let's just keep it in memory/zustand. We'll handle IndexedDB separately.
+      onRehydrateStorage: () => (state) => {
+        state?.setLoading(false);
+      },
       partialize: (state) => ({ 
         user: state.user,
+        privateKeyBase64: state.privateKeyBase64,
         isAuthenticated: state.isAuthenticated 
       }),
     }
