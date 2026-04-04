@@ -21,8 +21,8 @@ export default function AuthPage() {
   }, [isAuthenticated, router]);
 
   const valid = mode === "login" 
-    ? identifier.trim().length >= 3 && password.length >= 6 
-    : name.trim().length >= 2 && username.trim().length >= 3 && password.length >= 6;
+    ? identifier.trim().length > 0 && password.length > 0 
+    : name.trim().length > 0 && username.trim().length > 0 && password.length > 0;
 
   const handleAuth = async () => {
     if (!valid) return;
@@ -33,7 +33,7 @@ export default function AuthPage() {
       if (mode === "register") {
         const uid = generateUID();
         const cleanUser = username.trim().toLowerCase();
-        const email = `${cleanUser}@gmail.com`; // Standard domain to pass validator
+        const email = `${cleanUser}@chatkit.io`; // Consistent domain used for both register & login
         
         // 1. Sign up user
         const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -42,10 +42,13 @@ export default function AuthPage() {
         });
 
         if (authError) {
-          if (authError.message.includes("invalid")) {
-            throw new Error(`${authError.message}. Try a different username or check your Supabase Auth settings.`);
+          if (authError.message.toLowerCase().includes("password")) {
+            throw new Error("Password must be at least 6 characters.");
           }
-          throw authError;
+          if (authError.message.toLowerCase().includes("already registered")) {
+            throw new Error("This username is already taken. Try a different one.");
+          }
+          throw new Error(authError.message);
         }
         if (!authData.user) throw new Error("Registration failed");
 
@@ -64,9 +67,14 @@ export default function AuthPage() {
           avatar_id: (Math.floor(Math.random() * 8) + 1).toString(),
         });
 
-        if (profError) throw profError;
+        if (profError) {
+          if (profError.code === "23505" || profError.message?.toLowerCase().includes("unique")) {
+            throw new Error("Username already taken. Please choose a different username.");
+          }
+          throw new Error(profError.message);
+        }
 
-        login({ id: authData.user.id, uid, username, display_name: name, avatar_id: "1" }, keys.privateKey);
+        login({ id: authData.user.id, uid, username: username.toLowerCase(), display_name: name, avatar_id: (Math.floor(Math.random() * 8) + 1).toString(), public_key: keys.publicKey }, keys.privateKey);
       } else {
         // 1. Find user by UID or Username
         let email = "";
@@ -140,7 +148,7 @@ export default function AuthPage() {
               <Field label="Username" value={username} onChange={v => setUsername(v.toLowerCase().replace(/[^a-z0-9_]/g, ""))} placeholder="unique_username" />
             </>
           )}
-          <Field label="Password" value={password} onChange={setPassword} placeholder="Min 6 characters" password />
+          <Field label="Password" value={password} onChange={setPassword} placeholder="Enter password" password />
           
           <p style={{ color: "var(--t3)", fontSize: 12, textAlign: "center", marginTop: 20, lineHeight: 1.5 }}>
             {mode === "login" ? "Keys are decrypted locally using your password. ChatKit servers never see your plaintext messages." : "A unique 10-digit UID will be assigned to you after registration."}

@@ -50,17 +50,11 @@ export default function ChatPage() {
       if (history && privateKeyBase64 && recProfile) {
         const decrypted = history.map(m => {
           const isMe = m.sender_id === user.id;
-          const senderPub = isMe ? user.public_key : recProfile.public_key; // error in schema logic, need to be careful
-          // In nacl.box, you need the SENDER'S public key and RECIPIENT'S private key.
-          // If I am recipient, I use sender's pub + my priv.
-          // If I am sender, I use recipient's pub + my priv.
-          const otherPub = isMe ? recProfile.public_key : recProfile.public_key;
-          // Actually, let's look at lib/crypto.ts
-          // decryptMessage(ciphertext, nonce, senderPub, recipientPriv)
+          // nacl.box: always decrypt using the other party's public key + our private key
           const decryptedText = decryptMessage(
             m.content, 
             m.nonce, 
-            m.sender_id === user.id ? user.public_key : recProfile.public_key, 
+            recProfile.public_key, // other party's pub key (works for both sender & receiver)
             privateKeyBase64
           );
           
@@ -172,7 +166,7 @@ export default function ChatPage() {
           const me = m.from === "me";
           return (
             <div key={m.id} style={{ display: "flex", justifyContent: me ? "flex-end" : "flex-start", marginBottom: 2 }}>
-              <div style={{ maxWidth: "78%", background: me ? "var(--bubble-out)" : "var(--bubble-in)", borderRadius: me ? "10px 2px 10px 10px" : "2px 10px 10px 10px", padding: "6px 10px", border: `1px solid ${me ? "rgba(37,211,102,0.06)" : "var(--border)"}` }}>
+              <div style={{ maxWidth: "78%", position: "relative", background: me ? "var(--bubble-out)" : "var(--bubble-in)", borderRadius: me ? "10px 2px 10px 10px" : "2px 10px 10px 10px", padding: "6px 10px", border: `1px solid ${me ? "rgba(37,211,102,0.06)" : "var(--border)"}` }}>
                 <p style={{ color: "var(--t1)", fontSize: 14, margin: 0, paddingRight: me ? 50 : 36 }}>{m.text}</p>
                 <div style={{ position: "absolute", bottom: 4, right: 8, display: "flex", alignItems: "center", gap: 3 }}>
                   <span style={{ color: "var(--t3)", fontSize: 10 }}>{m.time}</span>

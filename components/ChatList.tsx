@@ -22,24 +22,46 @@ export default function ChatList() {
     if (!user) { setLoading(false); return; }
     
     const fetchChats = async () => {
-      // For this demo, we fetch all profiles EXCEPT the current user
-      // In a real app, you'd fetch only people you have messages with
-      const { data: profiles, error } = await supabase
+      // Fetch all profiles except current user
+      const { data: profiles } = await supabase
         .from("profiles")
         .select("*")
         .neq("id", user.id);
       
       if (profiles) {
-        // Fetch last message for each profile (simulated for now, 
-        // to be fully functional we'd need another query)
-        const chatData = profiles.map(p => ({
-          id: p.id,
-          name: p.display_name,
-          msg: "E2E Encrypted Chat",
-          time: "Now",
-          unread: 0,
-          online: true 
-        }));
+        // Fetch last message for each profile to get real timestamps
+        const chatDataPromises = profiles.map(async (p, idx) => {
+          const { data: lastMsg } = await supabase
+            .from("messages")
+            .select("created_at, content")
+            .or(`and(sender_id.eq.${user.id},receiver_id.eq.${p.id}),and(sender_id.eq.${p.id},receiver_id.eq.${user.id})`)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+          const timeStr = lastMsg
+            ? new Date(lastMsg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+            : "";
+
+          return {
+            id: p.id,
+            name: p.display_name,
+            username: p.username,
+            msg: lastMsg ? "🔒 Encrypted message" : "Start a secure conversation",
+            time: timeStr,
+            unread: 0,
+            online: true,
+            hasMessages: !!lastMsg,
+          };
+        });
+
+        const chatData = await Promise.all(chatDataPromises);
+        // Sort: contacts with messages first (by recency), then others
+        chatData.sort((a, b) => {
+          if (a.hasMessages && !b.hasMessages) return -1;
+          if (!a.hasMessages && b.hasMessages) return 1;
+          return a.name.localeCompare(b.name);
+        });
         setChats(chatData);
       }
       setLoading(false);
@@ -55,7 +77,7 @@ export default function ChatList() {
     <div style={{ height: "100%", display: "flex", flexDirection: "column", background: "var(--bg-0)", position: "relative" }}>
       {/* header */}
       <div style={{ height: 52, background: "var(--bg-1)", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", borderBottom: "1px solid var(--border)" }}>
-        <span style={{ fontSize: 20, fontWeight: 700, color: "var(--accent)" }}>CipherTalk</span>
+        <span style={{ fontSize: 20, fontWeight: 700, color: "var(--accent)" }}>ChatKit</span>
         <div style={{ display: "flex", gap: 16 }}>
           <button onClick={() => setShowSearch(!showSearch)} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, display: "flex" }}>
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -88,7 +110,9 @@ export default function ChatList() {
         {loading ? (
           <div style={{ padding: 20, textAlign: "center", color: "var(--t3)" }}>Initializing secure list...</div>
         ) : filtered.length === 0 ? (
-          <div style={{ padding: 40, textAlign: "center", color: "var(--t3)" }}>No contacts found. Use your UID to find friends.</div>
+          <div style={{ padding: 40, textAlign: "center", color: "var(--t3)" }}>
+            {search ? `No results for "${search}"` : "No contacts found yet. Register another account to start chatting!"}
+          </div>
         ) : (
           filtered.map((c, i) => (
             <div key={c.id} onClick={() => router.push(`/chats/${c.id}`)} 
