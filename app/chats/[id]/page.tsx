@@ -118,25 +118,28 @@ export default function ChatPage() {
         <div ref={endRef} />
       </div>
 
-      {/* ATTACH PANEL */}
       {attach && (
-        <div style={{ background: "var(--bg-1)", borderTop: "1px solid var(--border)", padding: 16 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+        <div style={{ background: "var(--bg-1)", borderTop: "1px solid var(--border)", padding: "20px 16px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
             {[
-              { emoji: "📷", label: "Camera", bg: "#e74c3c" },
-              { emoji: "📄", label: "Document", bg: "#1da1f2" },
-              { emoji: "🖼️", label: "Gallery", bg: "#9b59b6" },
-              { emoji: "🎵", label: "Audio", bg: "#f39c12" },
-              { emoji: "📍", label: "Location", bg: "#25d366" },
-              { emoji: "👤", label: "Contact", bg: "#00bcd4" },
+              { label: "Document", icon: "doc" },
+              { label: "Camera", icon: "cam" },
+              { label: "Gallery", icon: "img" },
+              { label: "Audio", icon: "audio" },
+              { label: "Location", icon: "loc" },
+              { label: "Contact", icon: "user" },
             ].map(a => (
-              <button key={a.label} onClick={() => setAttach(false)} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-                <div style={{ width: 48, height: 48, borderRadius: "50%", background: a.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>{a.emoji}</div>
-                <span style={{ color: "var(--t2)", fontSize: 12 }}>{a.label}</span>
+              <button key={a.label} onClick={() => setAttach(false)} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+                <div style={{ width: 50, height: 50, borderRadius: 14, background: "var(--bg-2)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--t1)", transition: "background 0.2s" }}
+                  onMouseOver={e => e.currentTarget.style.background = "var(--bg-3)"}
+                  onMouseOut={e => e.currentTarget.style.background = "var(--bg-2)"}>
+                  <AttachIcon type={a.icon} />
+                </div>
+                <span style={{ color: "var(--t1)", fontSize: 13, fontWeight: 500 }}>{a.label}</span>
               </button>
             ))}
           </div>
-          <p style={{ color: "var(--t3)", fontSize: 11, textAlign: "center", marginTop: 10 }}>Files up to 1 GB · Encrypted before upload</p>
+          <p style={{ color: "var(--t3)", fontSize: 11, textAlign: "center", marginTop: 16 }}>Files up to 1 GB · Encrypted before upload</p>
         </div>
       )}
 
@@ -179,6 +182,20 @@ function MenuIcon({ type, danger }: { type: string; danger?: boolean }) {
     case "clock": return <svg {...s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
     case "palette": return <svg {...s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>;
     case "trash": return <svg {...s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>;
+    default: return null;
+  }
+}
+
+function AttachIcon({ type }: { type: string }) {
+  const c = "currentColor";
+  const s = { width: 22, height: 22 };
+  switch (type) {
+    case "doc": return <svg {...s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>;
+    case "cam": return <svg {...s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>;
+    case "img": return <svg {...s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>;
+    case "audio": return <svg {...s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>;
+    case "loc": return <svg {...s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>;
+    case "user": return <svg {...s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
     default: return null;
   }
 }
