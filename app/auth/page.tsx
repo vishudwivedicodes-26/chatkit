@@ -4,88 +4,76 @@ import { useRouter } from "next/navigation";
 
 export default function AuthPage() {
   const router = useRouter();
-  const [isLogin, setIsLogin] = useState(true);
+  const [mode, setMode] = useState<"login"|"register">("login");
   const [uid, setUid] = useState("");
   const [password, setPassword] = useState("");
-  const [displayName, setDisplayName] = useState("");
+  const [name, setName] = useState("");
   const [username, setUsername] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const canSubmit = isLogin ? uid.length >= 5 && password.length >= 6 : displayName.length >= 2 && username.length >= 3 && password.length >= 6;
+  const valid = mode === "login" ? uid.length >= 5 && password.length >= 6 : name.length >= 2 && username.length >= 3 && password.length >= 6;
 
-  const handleSubmit = () => {
-    if (!canSubmit) return;
-    setIsLoading(true);
-    setTimeout(() => { router.push("/chats"); setIsLoading(false); }, 800);
-  };
-
-  const inputStyle = (focused?: boolean): React.CSSProperties => ({
-    width: "100%", fontSize: 16, color: "var(--text-primary)", padding: "14px 0",
-    borderBottom: `1.5px solid ${focused ? "var(--accent)" : "var(--border)"}`,
-    transition: "border-color 0.2s",
-  });
+  const submit = () => { if (!valid) return; setLoading(true); setTimeout(() => { router.push("/chats"); }, 600); };
 
   return (
-    <div style={{ position: "fixed", inset: 0, backgroundColor: "var(--bg-primary)", display: "flex", flexDirection: "column" }}>
-      {/* Header */}
-      <div className="glass" style={{ height: 56, display: "flex", alignItems: "center", padding: "0 16px", flexShrink: 0 }}>
-        <button onClick={() => router.back()} style={{ background: "none", border: "none", cursor: "pointer", padding: 8, marginLeft: -8 }}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+    <div style={{ position: "fixed", inset: 0, background: "var(--bg-0)", display: "flex", flexDirection: "column" }}>
+      {/* header */}
+      <div style={{ height: 56, background: "var(--bg-1)", display: "flex", alignItems: "center", padding: "0 16px", borderBottom: "1px solid var(--border)" }}>
+        <button onClick={() => router.back()} style={{ background: "none", border: "none", cursor: "pointer", padding: 6 }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t1)" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         </button>
-        <span style={{ color: "var(--text-primary)", fontSize: 18, fontWeight: 600, flex: 1, textAlign: "center", paddingRight: 30 }}>
-          {isLogin ? "Secure Login" : "Create Identity"}
-        </span>
+        <span style={{ flex: 1, textAlign: "center", color: "var(--t1)", fontSize: 17, fontWeight: 600 }}>{mode === "login" ? "Login" : "Register"}</span>
+        <div style={{ width: 32 }} />
       </div>
 
-      {/* Toggle */}
-      <div style={{ display: "flex", justifyContent: "center", gap: 32, padding: "24px 0 20px" }}>
-        {[{ label: "Login", val: true }, { label: "Register", val: false }].map(t => (
-          <button key={t.label} onClick={() => { setIsLogin(t.val); setError(""); }}
-            style={{ background: "none", border: "none", color: isLogin === t.val ? "var(--accent)" : "var(--text-secondary)", fontSize: 15, fontWeight: 500, cursor: "pointer", paddingBottom: 8, borderBottom: isLogin === t.val ? "2px solid var(--accent)" : "2px solid transparent", transition: "all 0.2s" }}>
-            {t.label}
-          </button>
+      {/* tabs */}
+      <div style={{ display: "flex", borderBottom: "1px solid var(--border)" }}>
+        {(["login","register"] as const).map(m => (
+          <button key={m} onClick={() => setMode(m)} style={{ flex: 1, height: 44, background: "none", border: "none", borderBottom: mode === m ? "2px solid var(--accent)" : "2px solid transparent", color: mode === m ? "var(--t1)" : "var(--t2)", fontSize: 14, fontWeight: 500, cursor: "pointer", textTransform: "capitalize" }}>{m}</button>
         ))}
       </div>
 
-      <div className="animate-fade" style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", overflowY: "auto", padding: "0 24px" }}>
-        <div style={{ width: "100%", maxWidth: 360 }}>
-          {isLogin ? (
+      {/* form */}
+      <div style={{ flex: 1, overflow: "auto", padding: "28px 24px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <div style={{ width: "100%", maxWidth: 340 }}>
+          {mode === "login" ? (
             <>
-              <div className="e2e-badge" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 28, padding: "10px 16px" }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
-                <span style={{ color: "var(--accent)", fontSize: 13, fontWeight: 500 }}>End-to-End Encrypted Session</span>
+              <div style={{ textAlign: "center", color: "var(--t2)", fontSize: 13, marginBottom: 24, padding: "8px 16px", background: "var(--accent-dim)", borderRadius: 8, border: "1px solid rgba(37,211,102,0.12)" }}>
+                🔒 End-to-end encrypted session
               </div>
-              <input type="text" placeholder="Your UID (10 digits)" value={uid}
-                onChange={(e) => setUid(e.target.value.replace(/[^0-9]/g, ""))} maxLength={10}
-                style={{ ...inputStyle(), fontSize: 22, textAlign: "center", fontFamily: "monospace", letterSpacing: 4 }} />
+              <Field label="UID" value={uid} onChange={v => setUid(v.replace(/\D/g,""))} placeholder="10-digit number" maxLength={10} mono />
             </>
           ) : (
             <>
-              <div style={{ display: "flex", justifyContent: "center", marginBottom: 24 }}>
-                <div style={{ width: 80, height: 80, borderRadius: "50%", background: "var(--bg-elevated)", border: "2px solid var(--accent)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-                </div>
-              </div>
-              <input type="text" placeholder="Display Name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} style={inputStyle()} />
-              <div style={{ height: 16 }} />
-              <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))} style={inputStyle()} />
+              <Field label="Display Name" value={name} onChange={setName} placeholder="Your name" />
+              <Field label="Username" value={username} onChange={v => setUsername(v.toLowerCase().replace(/[^a-z0-9_]/g,""))} placeholder="unique_username" />
             </>
           )}
-          <div style={{ height: 20 }} />
-          <input type="password" placeholder="Password (min 6 chars)" value={password} onChange={(e) => setPassword(e.target.value)} style={{ ...inputStyle(), textAlign: "center" }} />
-          {error && <p style={{ color: "var(--red)", fontSize: 13, marginTop: 16, textAlign: "center" }}>{error}</p>}
-          <p style={{ color: "var(--text-secondary)", fontSize: 12, textAlign: "center", marginTop: 20, lineHeight: 1.6, opacity: 0.7 }}>
-            {isLogin ? "Your encryption keys will be derived from your password. Keys never leave your device." : "A 10-digit UID will be generated for you. Share it with friends to connect."}
+          <Field label="Password" value={password} onChange={setPassword} placeholder="Min 6 characters" password />
+          <p style={{ color: "var(--t3)", fontSize: 12, textAlign: "center", marginTop: 20, lineHeight: 1.5 }}>
+            {mode === "login" ? "Keys are derived locally from your password." : "A unique 10-digit UID will be assigned to you."}
           </p>
         </div>
       </div>
 
-      <div style={{ padding: "16px 24px 36px", display: "flex", justifyContent: "center" }}>
-        <button disabled={!canSubmit || isLoading} onClick={handleSubmit} className="btn-primary" style={{ width: 180, height: 48, fontSize: 15 }}>
-          {isLoading ? "Encrypting..." : "Continue →"}
+      {/* submit */}
+      <div style={{ padding: "12px 24px 32px", display: "flex", justifyContent: "center" }}>
+        <button disabled={!valid || loading} onClick={submit} style={{ width: 160, height: 44, borderRadius: 22, background: valid ? "var(--accent)" : "var(--bg-2)", color: valid ? "#fff" : "var(--t3)", fontSize: 14, fontWeight: 600, border: "none", cursor: valid ? "pointer" : "default", transition: "background 0.15s" }}>
+          {loading ? "Please wait..." : "Continue"}
         </button>
       </div>
+    </div>
+  );
+}
+
+function Field({ label, value, onChange, placeholder, password, mono, maxLength }: { label: string; value: string; onChange: (v: string) => void; placeholder: string; password?: boolean; mono?: boolean; maxLength?: number }) {
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <label style={{ display: "block", color: "var(--t2)", fontSize: 12, fontWeight: 500, marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>{label}</label>
+      <input type={password ? "password" : "text"} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} maxLength={maxLength}
+        style={{ width: "100%", height: 44, padding: "0 14px", background: "var(--bg-2)", border: "1px solid var(--border)", borderRadius: 10, color: "var(--t1)", fontSize: 15, fontFamily: mono ? "monospace" : "inherit", letterSpacing: mono ? 2 : 0 }}
+        onFocus={e => e.currentTarget.style.borderColor = "var(--accent)"}
+        onBlur={e => e.currentTarget.style.borderColor = "var(--border)"} />
     </div>
   );
 }

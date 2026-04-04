@@ -1,150 +1,42 @@
 @import "tailwindcss";
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-  /* ═══ CHATKIT PREMIUM COLOR SYSTEM ═══ */
-  --bg-primary: #0b1014;      /* Deep black with subtle warmth */
-  --bg-secondary: #141a22;    /* Surface panels */
-  --bg-elevated: #1b2430;     /* Cards, modals */
-  --bg-hover: #1f2d3d;        /* Hover state */
-  --border: #1e2a38;          /* Subtle borders */
-  --accent: #00c896;          /* Primary green — more vibrant than WhatsApp */
-  --accent-hover: #00a87e;    /* Green hover */
-  --accent-dim: rgba(0,200,150,0.12); /* Green tint backgrounds */
-  --bubble-out: #003d33;      /* My message bubble — darker, more sophisticated */
-  --bubble-in: #1b2430;       /* Their message bubble */
-  --text-primary: #e8ecf1;    /* Primary white text */
-  --text-secondary: #7a8a9e;  /* Muted labels */
-  --text-timestamp: #5a6a7e;  /* Very muted */
-  --blue: #4a9eff;            /* Links, read receipts */
-  --red: #ff4757;             /* Errors, reject */
-  --yellow: #ffc048;          /* Warnings */
-  --purple: #7c5cfc;          /* Special highlights */
+  --bg-0: #0a0f13;
+  --bg-1: #111820;
+  --bg-2: #182028;
+  --bg-3: #1f2831;
+  --border: #1c2630;
+  --accent: #25d366;
+  --accent-dim: rgba(37,211,102,0.08);
+  --bubble-out: #004d40;
+  --bubble-in: #182028;
+  --t1: #e4e9ed;
+  --t2: #8899a6;
+  --t3: #556370;
+  --blue: #1da1f2;
+  --red: #e0245e;
 }
 
 html, body {
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  height: 100%; width: 100%; overflow: hidden;
+  background: var(--bg-0); color: var(--t1);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   font-size: 15px;
 }
 
-input, textarea, button {
-  font-family: inherit;
-}
+input, textarea, button { font-family: inherit; }
+input, textarea { background: transparent; outline: none; border: none; }
 
-input, textarea {
-  background: transparent;
-  outline: none;
-  border: none;
-}
-
-/* ═══ SCROLLBAR ═══ */
-::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(122,138,158,0.2); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(122,138,158,0.35); }
+::-webkit-scrollbar-thumb { background: rgba(136,153,166,0.15); border-radius: 2px; }
 
-/* ═══ UTILITY CLASSES ═══ */
-.no-select {
-  -webkit-user-select: none;
-  user-select: none;
-}
-
-/* ═══ CHAT WALLPAPER ═══ */
-.chat-wallpaper {
-  background-color: #080d12;
+.chat-wall {
+  background: var(--bg-0);
   background-image:
-    radial-gradient(ellipse at 15% 80%, rgba(0,200,150,0.03) 0%, transparent 60%),
-    radial-gradient(ellipse at 85% 20%, rgba(74,158,255,0.02) 0%, transparent 60%),
-    radial-gradient(ellipse at 50% 50%, rgba(124,92,252,0.015) 0%, transparent 70%);
-}
-
-/* ═══ GLASSMORPHISM ═══ */
-.glass {
-  background: rgba(20,26,34,0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(30,42,56,0.6);
-}
-
-/* ═══ ANIMATIONS ═══ */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes slideDown {
-  from { opacity: 0; transform: translateY(-16px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.92); }
-  to { opacity: 1; transform: scale(1); }
-}
-@keyframes glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(0,200,150,0.3); }
-  50% { box-shadow: 0 0 32px 8px rgba(0,200,150,0.15); }
-}
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
-}
-
-.animate-fade { animation: fadeIn 0.3s ease-out; }
-.animate-slideUp { animation: slideUp 0.35s ease-out; }
-.animate-slideDown { animation: slideDown 0.35s ease-out; }
-.animate-scaleIn { animation: scaleIn 0.25s ease-out; }
-.animate-glow { animation: glow 3s ease-in-out infinite; }
-.animate-float { animation: float 3s ease-in-out infinite; }
-
-/* ═══ LOCKED SHIELD BADGE (for E2E indicator) ═══ */
-.e2e-badge {
-  background: linear-gradient(135deg, rgba(0,200,150,0.15), rgba(74,158,255,0.1));
-  border: 1px solid rgba(0,200,150,0.2);
-  border-radius: 8px;
-  padding: 6px 14px;
-}
-
-/* ═══ PREMIUM BUTTON ═══ */
-.btn-primary {
-  background: linear-gradient(135deg, #00c896, #00a87e);
-  color: white;
-  border: none;
-  border-radius: 24px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 2px 12px rgba(0,200,150,0.25);
-}
-.btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 20px rgba(0,200,150,0.35);
-}
-.btn-primary:active {
-  transform: scale(0.98);
-}
-.btn-primary:disabled {
-  background: var(--bg-elevated);
-  color: var(--text-secondary);
-  box-shadow: none;
-  cursor: default;
-  transform: none;
+    radial-gradient(ellipse at 20% 80%, rgba(37,211,102,0.02) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(29,161,242,0.015) 0%, transparent 50%);
 }

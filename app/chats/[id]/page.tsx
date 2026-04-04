@@ -2,90 +2,114 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-const INITIAL_MSGS = [
-  { id: 1, text: "Hey! How's the encryption module going?", sender: "them", time: "10:42 AM", read: true },
-  { id: 2, text: "Fully operational 🔒 X25519 key exchange + XSalsa20-Poly1305 symmetric encryption. Keys never leave the device.", sender: "me", time: "10:43 AM", read: true },
-  { id: 3, text: "That's incredible! So even ChatKit servers can't read our messages?", sender: "them", time: "10:44 AM", read: true },
-  { id: 4, text: "Correct. The server only sees encrypted ciphertext. Not even ISPs can intercept it. Plus we pad every message to hide the actual length.", sender: "me", time: "10:45 AM", read: true },
-  { id: 5, text: "Perfect security 🛡️ Can you send the 800MB dataset through here?", sender: "them", time: "10:46 AM", read: false },
+const MSGS = [
+  { id: 1, text: "Hey! How's the encryption module going?", from: "them", time: "10:42 AM", read: true },
+  { id: 2, text: "Fully operational. X25519 key exchange + XSalsa20-Poly1305. Keys never leave the device.", from: "me", time: "10:43 AM", read: true },
+  { id: 3, text: "So even ChatKit servers can't read messages?", from: "them", time: "10:44 AM", read: true },
+  { id: 4, text: "Correct. Server only sees ciphertext. ISPs can't intercept either. Every message is padded to hide length.", from: "me", time: "10:45 AM", read: true },
+  { id: 5, text: "Can you send the 800MB dataset through here?", from: "them", time: "10:46 AM", read: false },
+];
+
+const MENU_ITEMS = [
+  { label: "View contact", icon: "user" },
+  { label: "Media & docs", icon: "image" },
+  { label: "Search", icon: "search" },
+  { label: "Mute notifications", icon: "mute" },
+  { label: "Disappearing messages", icon: "clock" },
+  { label: "Wallpaper", icon: "palette" },
+  { label: "Clear chat", icon: "trash" },
 ];
 
 export default function ChatPage() {
   const router = useRouter();
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState(INITIAL_MSGS);
-  const [showAttach, setShowAttach] = useState(false);
+  const [msg, setMsg] = useState("");
+  const [msgs, setMsgs] = useState(MSGS);
+  const [menu, setMenu] = useState(false);
+  const [attach, setAttach] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
+  useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs]);
 
-  const handleSend = () => {
-    if (!message.trim()) return;
-    setMessages(p => [...p, { id: Date.now(), text: message, sender: "me", time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), read: false }]);
-    setMessage("");
-    if (taRef.current) taRef.current.style.height = "44px";
-  };
+  // close menu on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenu(false);
+    };
+    if (menu) document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [menu]);
 
-  const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setMessage(e.target.value);
-    const el = e.target;
-    el.style.height = "44px";
-    el.style.height = Math.min(el.scrollHeight, 120) + "px";
+  const send = () => {
+    if (!msg.trim()) return;
+    setMsgs(p => [...p, { id: Date.now(), text: msg, from: "me", time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), read: false }]);
+    setMsg("");
+    if (taRef.current) taRef.current.style.height = "42px";
   };
 
   return (
-    <div style={{ position: "fixed", inset: 0, backgroundColor: "#080d12", display: "flex", flexDirection: "column" }}>
+    <div style={{ position: "fixed", inset: 0, background: "var(--bg-0)", display: "flex", flexDirection: "column" }}>
       {/* TOP BAR */}
-      <div className="glass" style={{ height: 56, display: "flex", alignItems: "center", padding: "0 6px", flexShrink: 0, zIndex: 10 }}>
-        <button onClick={() => router.push("/chats")} style={{ background: "none", border: "none", cursor: "pointer", padding: 8 }}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+      <div style={{ height: 54, background: "var(--bg-1)", display: "flex", alignItems: "center", padding: "0 8px", borderBottom: "1px solid var(--border)", position: "relative", zIndex: 20 }}>
+        <button onClick={() => router.push("/chats")} style={{ background: "none", border: "none", cursor: "pointer", padding: 6 }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t1)" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         </button>
-        <div style={{ width: 38, height: 38, borderRadius: "50%", background: "linear-gradient(135deg, #00c896, #00c89688)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, color: "white", marginLeft: 4 }}>AS</div>
-        <div style={{ flex: 1, marginLeft: 10, cursor: "pointer" }}>
-          <div style={{ color: "var(--text-primary)", fontSize: 16, fontWeight: 600, lineHeight: 1.2 }}>Alex Storm</div>
-          <div style={{ color: "var(--accent)", fontSize: 12, lineHeight: 1.2 }}>● online</div>
+        <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#25d366", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#fff", marginLeft: 4 }}>AS</div>
+        <div style={{ flex: 1, marginLeft: 10 }}>
+          <div style={{ color: "var(--t1)", fontSize: 15, fontWeight: 600, lineHeight: 1.2 }}>Alex Storm</div>
+          <div style={{ color: "var(--accent)", fontSize: 12 }}>online</div>
         </div>
-        <div style={{ display: "flex", gap: 14 }}>
-          <IconBtn><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" strokeWidth="1.8"><path d="M15.05 5A5 5 0 0 1 19 8.95M15.05 1A9 9 0 0 1 23 8.94M22 16.92v3a2 2 0 0 1-2.18 2A19.8 19.8 0 0 1 11 18.86a19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2 4.18 2 2 0 0 1 4 2h3a2 2 0 0 1 2 1.72c.13.81.36 1.6.68 2.34a2 2 0 0 1-.45 2.11L8 9.4a16 16 0 0 0 6.6 6.6l1.23-1.23a2 2 0 0 1 2.11-.45c.74.32 1.53.55 2.34.68A2 2 0 0 1 22 16.92z" /></svg></IconBtn>
-          <IconBtn><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" strokeWidth="1.8"><circle cx="12" cy="12" r="1" /><circle cx="12" cy="5" r="1" /><circle cx="12" cy="19" r="1" /></svg></IconBtn>
+        <button style={{ background: "none", border: "none", cursor: "pointer", padding: 6 }}>
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.8 19.8 0 0 1 11 18.86a19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2 4.18 2 2 0 0 1 4 2h3a2 2 0 0 1 2 1.72c.13.81.36 1.6.68 2.34a2 2 0 0 1-.45 2.11L8 9.4a16 16 0 0 0 6.6 6.6l1.23-1.23a2 2 0 0 1 2.11-.45c.74.32 1.53.55 2.34.68A2 2 0 0 1 22 16.92z"/></svg>
+        </button>
+
+        {/* 3-DOT MENU BUTTON */}
+        <div ref={menuRef} style={{ position: "relative" }}>
+          <button onClick={() => { setMenu(!menu); setAttach(false); }} style={{ background: "none", border: "none", cursor: "pointer", padding: 6 }}>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" strokeWidth="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+          </button>
+
+          {/* DROPDOWN MENU */}
+          {menu && (
+            <div style={{ position: "absolute", top: "100%", right: 0, marginTop: 4, width: 220, background: "var(--bg-2)", border: "1px solid var(--border)", borderRadius: 10, overflow: "hidden", boxShadow: "0 8px 24px rgba(0,0,0,0.4)", zIndex: 50 }}>
+              {MENU_ITEMS.map((item, i) => (
+                <button key={i} onClick={() => setMenu(false)}
+                  style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", background: "none", border: "none", cursor: "pointer", color: item.icon === "trash" ? "var(--red)" : "var(--t1)", fontSize: 14, textAlign: "left", borderBottom: i < MENU_ITEMS.length - 1 ? "1px solid var(--border)" : "none" }}
+                  onMouseOver={e => e.currentTarget.style.background = "var(--bg-3)"}
+                  onMouseOut={e => e.currentTarget.style.background = "transparent"}>
+                  <MenuIcon type={item.icon} danger={item.icon === "trash"} />
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
       {/* MESSAGES */}
-      <div className="no-select chat-wallpaper" style={{ flex: 1, overflowY: "auto", padding: "8px 4%", display: "flex", flexDirection: "column" }}>
-        {/* E2E Notice */}
+      <div className="chat-wall" style={{ flex: 1, overflowY: "auto", padding: "8px 5%" }}>
+        {/* encryption notice */}
         <div style={{ display: "flex", justifyContent: "center", margin: "12px 0" }}>
-          <div className="e2e-badge" style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px" }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
-            <span style={{ color: "var(--text-secondary)", fontSize: 11 }}>Messages are end-to-end encrypted. Auto-delete in 15h.</span>
+          <div style={{ background: "var(--accent-dim)", border: "1px solid rgba(37,211,102,0.1)", borderRadius: 6, padding: "6px 14px", display: "flex", alignItems: "center", gap: 6 }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span style={{ color: "var(--t2)", fontSize: 11 }}>Messages are end-to-end encrypted</span>
           </div>
         </div>
 
         <div style={{ display: "flex", justifyContent: "center", margin: "4px 0 12px" }}>
-          <span style={{ backgroundColor: "var(--bg-elevated)", color: "var(--text-secondary)", fontSize: 11, fontWeight: 600, padding: "4px 14px", borderRadius: 16, letterSpacing: 0.5 }}>TODAY</span>
+          <span style={{ background: "var(--bg-2)", color: "var(--t3)", fontSize: 11, fontWeight: 500, padding: "3px 12px", borderRadius: 4 }}>TODAY</span>
         </div>
 
-        {messages.map((msg) => {
-          const isMe = msg.sender === "me";
+        {msgs.map(m => {
+          const me = m.from === "me";
           return (
-            <div key={msg.id} className="animate-slideUp" style={{ display: "flex", justifyContent: isMe ? "flex-end" : "flex-start", marginBottom: 3 }}>
-              <div style={{
-                maxWidth: "78%",
-                backgroundColor: isMe ? "var(--bubble-out)" : "var(--bubble-in)",
-                borderRadius: isMe ? "12px 2px 12px 12px" : "2px 12px 12px 12px",
-                padding: "7px 10px",
-                position: "relative",
-                marginLeft: isMe ? 0 : 8,
-                marginRight: isMe ? 8 : 0,
-                border: `1px solid ${isMe ? "rgba(0,200,150,0.08)" : "var(--border)"}`,
-              }}>
-                <p style={{ color: "var(--text-primary)", fontSize: 14.5, lineHeight: 1.4, whiteSpace: "pre-wrap", wordBreak: "break-word", paddingRight: isMe ? 68 : 48, margin: 0 }}>
-                  {msg.text}
-                </p>
+            <div key={m.id} style={{ display: "flex", justifyContent: me ? "flex-end" : "flex-start", marginBottom: 2 }}>
+              <div style={{ maxWidth: "78%", background: me ? "var(--bubble-out)" : "var(--bubble-in)", borderRadius: me ? "10px 2px 10px 10px" : "2px 10px 10px 10px", padding: "6px 10px", position: "relative", marginLeft: me ? 0 : 4, marginRight: me ? 4 : 0, border: `1px solid ${me ? "rgba(37,211,102,0.06)" : "var(--border)"}` }}>
+                <p style={{ color: "var(--t1)", fontSize: 14, lineHeight: 1.35, whiteSpace: "pre-wrap", wordBreak: "break-word", paddingRight: me ? 64 : 44, margin: 0 }}>{m.text}</p>
                 <div style={{ position: "absolute", bottom: 4, right: 8, display: "flex", alignItems: "center", gap: 3 }}>
-                  <span style={{ color: "var(--text-timestamp)", fontSize: 10 }}>{msg.time}</span>
-                  {isMe && <span style={{ color: msg.read ? "var(--blue)" : "var(--text-timestamp)", fontSize: 13, marginLeft: 2 }}>✓✓</span>}
+                  <span style={{ color: "var(--t3)", fontSize: 10 }}>{m.time}</span>
+                  {me && <span style={{ color: m.read ? "var(--blue)" : "var(--t3)", fontSize: 12, marginLeft: 1 }}>✓✓</span>}
                 </div>
               </div>
             </div>
@@ -94,54 +118,49 @@ export default function ChatPage() {
         <div ref={endRef} />
       </div>
 
-      {/* ATTACH MENU */}
-      {showAttach && (
-        <div className="animate-slideUp glass" style={{ position: "absolute", bottom: 72, left: 12, right: 12, borderRadius: 16, padding: 16, zIndex: 20 }}>
+      {/* ATTACH PANEL */}
+      {attach && (
+        <div style={{ background: "var(--bg-1)", borderTop: "1px solid var(--border)", padding: 16 }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
             {[
-              { icon: "📷", label: "Camera", color: "#ff6b6b" },
-              { icon: "📁", label: "Document", color: "#4a9eff" },
-              { icon: "🖼️", label: "Gallery", color: "#7c5cfc" },
-              { icon: "🎵", label: "Audio", color: "#ffc048" },
-              { icon: "📍", label: "Location", color: "#00c896" },
-              { icon: "👤", label: "Contact", color: "#00b4d8" },
-            ].map(item => (
-              <button key={item.label} onClick={() => setShowAttach(false)} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-                <div style={{ width: 52, height: 52, borderRadius: "50%", backgroundColor: item.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>
-                  {item.icon}
-                </div>
-                <span style={{ color: "var(--text-secondary)", fontSize: 12 }}>{item.label}</span>
+              { emoji: "📷", label: "Camera", bg: "#e74c3c" },
+              { emoji: "📄", label: "Document", bg: "#1da1f2" },
+              { emoji: "🖼️", label: "Gallery", bg: "#9b59b6" },
+              { emoji: "🎵", label: "Audio", bg: "#f39c12" },
+              { emoji: "📍", label: "Location", bg: "#25d366" },
+              { emoji: "👤", label: "Contact", bg: "#00bcd4" },
+            ].map(a => (
+              <button key={a.label} onClick={() => setAttach(false)} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                <div style={{ width: 48, height: 48, borderRadius: "50%", background: a.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>{a.emoji}</div>
+                <span style={{ color: "var(--t2)", fontSize: 12 }}>{a.label}</span>
               </button>
             ))}
           </div>
-          <p style={{ color: "var(--text-timestamp)", fontSize: 11, textAlign: "center", marginTop: 12 }}>
-            📎 Send files up to 1GB — encrypted before upload
-          </p>
+          <p style={{ color: "var(--t3)", fontSize: 11, textAlign: "center", marginTop: 10 }}>Files up to 1 GB · Encrypted before upload</p>
         </div>
       )}
 
-      {/* INPUT BAR */}
-      <div className="glass" style={{ display: "flex", alignItems: "flex-end", padding: "6px 6px", flexShrink: 0, gap: 4 }}>
-        <IconBtn><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.8"><circle cx="12" cy="12" r="10" /><path d="M8 14s1.5 2 4 2 4-2 4-2" /><line x1="9" y1="9" x2="9.01" y2="9" /><line x1="15" y1="9" x2="15.01" y2="9" /></svg></IconBtn>
+      {/* INPUT */}
+      <div style={{ background: "var(--bg-1)", display: "flex", alignItems: "flex-end", padding: "6px 6px", borderTop: "1px solid var(--border)", gap: 4 }}>
+        <button onClick={() => {}} style={{ background: "none", border: "none", cursor: "pointer", padding: 8, flexShrink: 0 }}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" strokeWidth="1.8"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+        </button>
 
-        <div style={{ flex: 1, backgroundColor: "var(--bg-elevated)", borderRadius: 22, display: "flex", alignItems: "flex-end", minHeight: 44, position: "relative", border: "1px solid var(--border)" }}>
-          <textarea ref={taRef} value={message} onChange={handleInput}
-            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+        <div style={{ flex: 1, background: "var(--bg-2)", borderRadius: 20, display: "flex", alignItems: "flex-end", minHeight: 42, border: "1px solid var(--border)", position: "relative" }}>
+          <textarea ref={taRef} value={msg} onChange={e => { setMsg(e.target.value); const el = e.target; el.style.height = "42px"; el.style.height = Math.min(el.scrollHeight, 120) + "px"; }}
+            onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
             placeholder="Message" rows={1}
-            style={{ width: "100%", color: "var(--text-primary)", fontSize: 15, padding: "11px 80px 11px 16px", resize: "none", overflowY: "auto", maxHeight: 120, minHeight: 44, lineHeight: 1.4, height: 44 }} />
-          <button onClick={() => setShowAttach(!showAttach)} style={{ position: "absolute", right: 38, bottom: 10, background: "none", border: "none", cursor: "pointer" }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.8"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" /></svg>
-          </button>
-          <button style={{ position: "absolute", right: 10, bottom: 10, background: "none", border: "none", cursor: "pointer" }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.8"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" /><circle cx="12" cy="13" r="4" /></svg>
+            style={{ width: "100%", color: "var(--t1)", fontSize: 14, padding: "10px 46px 10px 14px", resize: "none", overflowY: "auto", maxHeight: 120, minHeight: 42, lineHeight: 1.4, height: 42 }} />
+          <button onClick={() => { setAttach(!attach); setMenu(false); }} style={{ position: "absolute", right: 8, bottom: 9, background: "none", border: "none", cursor: "pointer" }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" strokeWidth="1.8"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
           </button>
         </div>
 
-        <button onClick={handleSend} className="btn-primary" style={{ width: 46, height: 46, borderRadius: "50%", padding: 0, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          {message.length > 0 ? (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
+        <button onClick={send} style={{ width: 44, height: 44, borderRadius: "50%", background: "var(--accent)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          {msg.length > 0 ? (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
           ) : (
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><line x1="12" y1="19" x2="12" y2="23" /><line x1="8" y1="23" x2="16" y2="23" /></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
           )}
         </button>
       </div>
@@ -149,6 +168,17 @@ export default function ChatPage() {
   );
 }
 
-function IconBtn({ children, onClick }: any) {
-  return <button onClick={onClick} style={{ background: "none", border: "none", cursor: "pointer", padding: 8, borderRadius: 8, display: "flex" }}>{children}</button>;
+function MenuIcon({ type, danger }: { type: string; danger?: boolean }) {
+  const c = danger ? "var(--red)" : "var(--t2)";
+  const s = { width: 16, height: 16 };
+  switch (type) {
+    case "user": return <svg {...s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
+    case "image": return <svg {...s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>;
+    case "search": return <svg {...s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>;
+    case "mute": return <svg {...s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><line x1="1" y1="1" x2="23" y2="23"/></svg>;
+    case "clock": return <svg {...s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
+    case "palette": return <svg {...s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>;
+    case "trash": return <svg {...s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>;
+    default: return null;
+  }
 }
