@@ -49,10 +49,10 @@ export default function ChatPage() {
   };
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: "var(--bg-0)", display: "flex", flexDirection: "column" }}>
+    <div style={{ position: "relative", height: "100%", background: "var(--bg-0)", display: "flex", flexDirection: "column" }}>
       {/* TOP BAR */}
       <div style={{ height: 54, background: "var(--bg-1)", display: "flex", alignItems: "center", padding: "0 8px", borderBottom: "1px solid var(--border)", position: "relative", zIndex: 20 }}>
-        <button onClick={() => router.push("/chats")} style={{ background: "none", border: "none", cursor: "pointer", padding: 6 }}>
+        <button className="mobile-back" onClick={() => router.push("/chats")} style={{ background: "none", border: "none", cursor: "pointer", padding: 6 }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t1)" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         </button>
         <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#25d366", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#fff", marginLeft: 4 }}>AS</div>

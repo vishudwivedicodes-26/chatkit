@@ -8,15 +8,25 @@
   --bg-2: #182028;
   --bg-3: #1f2831;
   --border: #1c2630;
-  --accent: #25d366;
-  --accent-dim: rgba(37,211,102,0.08);
-  --bubble-out: #004d40;
-  --bubble-in: #182028;
   --t1: #e4e9ed;
   --t2: #8899a6;
   --t3: #556370;
+  --accent: #25d366;
+  --accent-dim: rgba(37,211,102,0.08);
+  --bubble-out: #004d40;
+  --bubble-in: var(--bg-1);
   --blue: #1da1f2;
   --red: #e0245e;
+}
+
+/* ═══ RESPONSIVE UTILITIES ═══ */
+@media (min-width: 768px) {
+  .mobile-only { display: none !important; }
+  .desktop-hide { display: none !important; }
+}
+
+@media (max-width: 767px) {
+  .desktop-only { display: none !important; }
 }
 
 html, body {
