@@ -1,52 +1,45 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function SplashPage() {
   const router = useRouter();
-  const [visible, setVisible] = useState(true);
+  const [phase, setPhase] = useState(0); // 0=logo, 1=text, 2=fadeout
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setVisible(false);
-      setTimeout(() => router.push("/welcome"), 400);
-    }, 2200);
-    return () => clearTimeout(timer);
+    setTimeout(() => setPhase(1), 400);
+    setTimeout(() => setPhase(2), 2000);
+    setTimeout(() => router.push("/welcome"), 2400);
   }, [router]);
 
   return (
-    <div
-      className={`fixed inset-0 flex flex-col items-center justify-center transition-opacity duration-400 ${visible ? "opacity-100" : "opacity-0"}`}
-      style={{ backgroundColor: "#111B21" }}
-    >
-      {/* Logo */}
-      <div className="flex-1 flex items-center justify-center">
-        <div
-          className="animate-slide-up"
-          style={{
-            width: 80,
-            height: 80,
-            borderRadius: 20,
-            backgroundColor: "#00A884",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "0 0 40px rgba(0,168,132,0.3)",
-          }}
-        >
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    <div style={{
+      position: "fixed", inset: 0,
+      backgroundColor: "var(--bg-primary)",
+      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+      transition: "opacity 0.4s", opacity: phase === 2 ? 0 : 1,
+    }}>
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div className="animate-glow" style={{
+          width: 88, height: 88, borderRadius: 22,
+          background: "linear-gradient(135deg, #00c896, #00a87e)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          opacity: phase >= 0 ? 1 : 0, transform: phase >= 0 ? "scale(1)" : "scale(0.8)",
+          transition: "all 0.5s ease-out",
+        }}>
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            <path d="M9 12l2 2 4-4" />
           </svg>
         </div>
       </div>
-
-      {/* Footer */}
-      <div className="pb-10 flex flex-col items-center animate-fade-in" style={{ animationDelay: "0.3s" }}>
-        <span style={{ color: "#8696A0", fontSize: 12 }}>from</span>
-        <span style={{ color: "#8696A0", fontSize: 13, fontWeight: 500, letterSpacing: 3, marginTop: 4, textTransform: "uppercase" }}>
-          ChatKit
-        </span>
+      <div style={{
+        paddingBottom: 48, textAlign: "center",
+        opacity: phase >= 1 ? 1 : 0, transform: phase >= 1 ? "translateY(0)" : "translateY(8px)",
+        transition: "all 0.4s ease-out",
+      }}>
+        <div style={{ color: "var(--text-secondary)", fontSize: 11, letterSpacing: 1 }}>ENCRYPTED BY</div>
+        <div style={{ color: "var(--text-primary)", fontSize: 18, fontWeight: 700, letterSpacing: 4, marginTop: 4 }}>CHATKIT</div>
       </div>
     </div>
   );
