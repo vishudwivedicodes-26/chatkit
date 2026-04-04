@@ -1,26 +1,69 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-base: #111B21;
+  --color-surface: #1F2C34;
+  --color-surface-hover: #2A3942;
+  --color-divider: #2A3942;
+  --color-primary: #00A884;
+  --color-bubble-in: #1F2C34;
+  --color-bubble-out: #005C4B;
+  --color-text-primary: #E9EDEF;
+  --color-text-secondary: #8696A0;
+  --color-accent-blue: #53BDEB;
+  --color-chat-bg: #0B141A;
+  
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Roboto", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  
+  /* Text Sizes according to spec */
+  --text-timestamp: 11px;
+  --text-label-sec: 13px;
+  --text-body: 14px;
+  --text-preview: 15px;
+  --text-header: 17px;
+  --text-title: 20px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  body {
+    @apply bg-base text-text-primary font-sans antialiased h-full overflow-hidden;
+  }
+  html {
+    @apply h-full overflow-hidden;
+  }
+  
+  input {
+    @apply bg-transparent outline-none border-none;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  .no-select {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  
+  /* Custom scrollbar to match dark theme */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(134, 150, 160, 0.2);
+    border-radius: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(134, 150, 160, 0.3);
+  }
+}
+
+/* Chat Wallpaper pattern class */
+.chat-bg-pattern {
+  background-color: var(--color-chat-bg);
+  background-image: url('/bg-chat.png'); /* To be created or generated */
+  background-blend-mode: overlay;
+  opacity: 0.95;
 }
