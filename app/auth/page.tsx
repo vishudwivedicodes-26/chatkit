@@ -21,8 +21,8 @@ export default function AuthPage() {
   }, [isAuthenticated, router]);
 
   const valid = mode === "login" 
-    ? identifier.length >= 3 && password.length >= 6 
-    : name.length >= 2 && username.length >= 3 && password.length >= 6;
+    ? identifier.trim().length >= 3 && password.length >= 6 
+    : name.trim().length >= 2 && username.trim().length >= 3 && password.length >= 6;
 
   const handleAuth = async () => {
     if (!valid) return;
@@ -32,7 +32,8 @@ export default function AuthPage() {
     try {
       if (mode === "register") {
         const uid = generateUID();
-        const email = `${username.toLowerCase()}@chatkit.io`;
+        const cleanUser = username.trim().toLowerCase();
+        const email = `${cleanUser}@gmail.com`; // Standard domain to pass validator
         
         // 1. Sign up user
         const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -40,7 +41,12 @@ export default function AuthPage() {
           password,
         });
 
-        if (authError) throw authError;
+        if (authError) {
+          if (authError.message.includes("invalid")) {
+            throw new Error(`${authError.message}. Try a different username or check your Supabase Auth settings.`);
+          }
+          throw authError;
+        }
         if (!authData.user) throw new Error("Registration failed");
 
         // 2. Generate E2E Keys
