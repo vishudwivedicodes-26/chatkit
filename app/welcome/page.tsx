@@ -1,55 +1,77 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { ShieldCheck } from "lucide-react";
 
 export default function WelcomePage() {
   const router = useRouter();
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#111B21] items-center justify-between py-10">
-      {/* Top Indicators */}
-      <div className="flex items-center space-x-[6px] mt-4">
-        <div className="w-2 h-2 bg-white rounded-full"></div>
-        <div className="w-1.5 h-1.5 bg-[#8696A0] rounded-full"></div>
-        <div className="w-1.5 h-1.5 bg-[#8696A0] rounded-full"></div>
+    <div className="fixed inset-0 flex flex-col items-center justify-between" style={{ backgroundColor: "#111B21", paddingTop: 60, paddingBottom: 40 }}>
+      {/* Progress dots */}
+      <div className="flex items-center" style={{ gap: 6 }}>
+        <div style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: "white" }} />
+        <div style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "#8696A0" }} />
+        <div style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "#8696A0" }} />
       </div>
 
-      {/* Center Illustration & Copy */}
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="flex flex-col items-center flex-1 justify-center w-full max-w-md px-10"
-      >
-        <div className="relative w-64 h-64 mb-10 flex items-center justify-center">
-          {/* Animated circles behind lock */}
-          <motion.div 
-            animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.6, 0.3] }}
-            transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-            className="absolute rounded-full w-48 h-48 border-2 border-[#00A884]/30"
-          />
-          <motion.div 
-            animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.3, 0.1] }}
-            transition={{ repeat: Infinity, duration: 4, ease: "easeInOut", delay: 0.5 }}
-            className="absolute rounded-full w-64 h-64 border border-[#00A884]/20"
-          />
-          <ShieldCheck className="w-24 h-24 text-[#00A884] relative z-10" />
+      {/* Center content */}
+      <div className="flex flex-col items-center animate-slide-up" style={{ padding: "0 40px" }}>
+        {/* Lock animation */}
+        <div style={{ position: "relative", width: 260, height: 260, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 40 }}>
+          {/* Outer ring */}
+          <div style={{
+            position: "absolute",
+            width: 220,
+            height: 220,
+            borderRadius: "50%",
+            border: "2px solid rgba(0,168,132,0.2)",
+            animation: "pulse-glow 3s ease-in-out infinite",
+          }} />
+          {/* Inner ring */}
+          <div style={{
+            position: "absolute",
+            width: 160,
+            height: 160,
+            borderRadius: "50%",
+            border: "1px solid rgba(0,168,132,0.3)",
+          }} />
+          {/* Shield icon */}
+          <svg width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="#00A884" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            <path d="m9 12 2 2 4-4" />
+          </svg>
         </div>
 
-        <h1 className="text-white text-2xl font-bold mb-4">Welcome to CipherTalk</h1>
-        
-        <p className="text-[#8696A0] text-[14px] text-center leading-relaxed">
-          Read our <span className="text-[#53BDEB] underline cursor-pointer">Privacy Policy</span>. Tap &quot;Agree and continue&quot; to accept the <span className="text-[#53BDEB] underline cursor-pointer">Terms of Service</span>.
-        </p>
-      </motion.div>
+        <h1 style={{ color: "white", fontSize: 24, fontWeight: 300, marginBottom: 16, textAlign: "center" }}>
+          Welcome to ChatKit
+        </h1>
 
-      {/* Bottom Button */}
-      <div className="w-full max-w-md px-6">
-        <button 
+        <p style={{ color: "#8696A0", fontSize: 14, textAlign: "center", lineHeight: 1.6 }}>
+          Read our{" "}
+          <span style={{ color: "#53BDEB", textDecoration: "underline", cursor: "pointer" }}>Privacy Policy</span>
+          . Tap &quot;Agree and continue&quot; to accept the{" "}
+          <span style={{ color: "#53BDEB", textDecoration: "underline", cursor: "pointer" }}>Terms of Service</span>.
+        </p>
+      </div>
+
+      {/* Bottom button */}
+      <div style={{ width: "100%", padding: "0 24px" }}>
+        <button
           onClick={() => router.push("/auth")}
-          className="w-full h-[52px] rounded-full bg-[#00A884] text-white text-[16px] font-semibold flex items-center justify-center hover:bg-[#008f6f] active:scale-[0.98] transition-all no-select"
+          style={{
+            width: "100%",
+            height: 52,
+            borderRadius: 26,
+            backgroundColor: "#00A884",
+            color: "white",
+            fontSize: 16,
+            fontWeight: 600,
+            border: "none",
+            cursor: "pointer",
+            transition: "background 0.2s",
+          }}
+          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#008f6f")}
+          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#00A884")}
         >
           Agree and continue
         </button>
