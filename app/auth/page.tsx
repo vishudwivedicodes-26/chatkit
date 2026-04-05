@@ -262,7 +262,7 @@ function Field({ label, value, onChange, placeholder, password }: { label: strin
           onBlur={() => setFocused(false)}
           onChange={e => onChange(e.target.value)} 
           placeholder={placeholder}
-          className="w-full h-[60px] bg-[#2d2d2d] text-white placeholder:text-zinc-500 text-[15px] font-medium px-5 rounded-2xl border border-transparent focus:border-emerald-500/20 transition-all outline-none"
+          className="w-full h-[60px] !bg-[#2d2d2d] !text-white caret-emerald-500 placeholder:text-[#9ca3af] text-[15px] font-medium px-5 rounded-2xl border border-transparent focus:border-emerald-500 transition-all outline-none selection:bg-emerald-500/30"
         />
         {password && (
           <button 
