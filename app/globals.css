@@ -17,6 +17,8 @@
   --bubble-in: var(--bg-1);
   --blue: #1da1f2;
   --red: #e0245e;
+  --brand-emerald: #00a884;
+  --brand-emerald-dark: #008069;
 }
 
 /* ═══ RESPONSIVE UTILITIES ═══ */

@@ -70,7 +70,8 @@ export default function ChatList() {
     fetchChats();
   }, [user]);
 
-  const isActive = (id: string) => pathname === `/chats/${id}`;
+  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const isActive = (id: string) => pathname === `/chats/room` && searchParams?.get("id") === id;
   const filtered = chats.filter(c => c.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
@@ -115,7 +116,7 @@ export default function ChatList() {
           </div>
         ) : (
           filtered.map((c, i) => (
-            <div key={c.id} onClick={() => router.push(`/chats/${c.id}`)} 
+            <div key={c.id} onClick={() => router.push(`/chats/room?id=${c.id}`)} 
               style={{ 
                 height: 72, display: "flex", alignItems: "center", cursor: "pointer", padding: "0 14px", borderBottom: "1px solid var(--border)",
                 background: isActive(c.id) ? "var(--bg-2)" : "transparent"

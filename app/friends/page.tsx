@@ -52,7 +52,7 @@ export default function FriendsPage() {
 
       <div style={{ flex: 1, overflowY: "auto" }}>
         {tab === "friends" ? FRIENDS.map((f, i) => (
-          <div key={f.id} onClick={() => router.push(`/chats/${f.id}`)} style={{ display: "flex", alignItems: "center", padding: "10px 14px", cursor: "pointer", borderBottom: "1px solid var(--border)" }}
+          <div key={f.id} onClick={() => router.push(`/chats/room?id=${f.id}`)} style={{ display: "flex", alignItems: "center", padding: "10px 14px", cursor: "pointer", borderBottom: "1px solid var(--border)" }}
             onMouseOver={e => e.currentTarget.style.background = "var(--bg-2)"}
             onMouseOut={e => e.currentTarget.style.background = "transparent"}>
             <div style={{ width: 42, height: 42, borderRadius: "50%", background: COLORS[i % COLORS.length], display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, color: "#fff", position: "relative", flexShrink: 0 }}>

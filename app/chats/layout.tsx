@@ -6,7 +6,8 @@ import { clsx } from "clsx";
 export default function ChatsLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   // We want to detect if we're exactly at the chats list page (/chats)
-  const isChatList = pathname === "/chats";
+  const isChatList = pathname === "/chats" || pathname === "/chats/";
+  const isChatRoom = pathname.startsWith("/chats/room");
 
   return (
     <div style={{ 

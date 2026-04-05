@@ -11,7 +11,8 @@ create table if not exists profiles (
   avatar_id text not null,
   public_key text not null,
   online_at timestamptz default now(),
-  created_at timestamptz default now()
+  created_at timestamptz default now(),
+  encrypted_private_key text -- Non-plaintext E2E secret
 );
 
 -- Friendships Table
@@ -83,9 +84,41 @@ alter table session_logs enable row level security;
 create policy "Public profiles are viewable by everyone" on profiles
   for select using (true);
 
+-- Allow users to insert their own profile
+create policy "Users can insert their own profile" on profiles
+  for insert with check (auth.uid() = id);
+
+-- Allow users to update their own profile
+create policy "Users can update their own profile" on profiles
+  for update using (auth.uid() = id);
+
 -- Messages are viewable by sender or receiver
 create policy "Messages are viewable by sender or receiver" on messages
   for select using (auth.uid() = sender_id or auth.uid() = receiver_id);
+
+-- Allow users to insert their own messages
+create policy "Users can insert their own messages" on messages
+  for insert with check (auth.uid() = sender_id);
+
+-- Friendships
+create policy "Users can view their friendships" on friendships
+  for select using (auth.uid() = user1_id or auth.uid() = user2_id);
+
+create policy "Users can create friendships" on friendships
+  for insert with check (auth.uid() = user1_id or auth.uid() = user2_id);
+
+create policy "Users can update their own friendships" on friendships
+  for update using (auth.uid() = user1_id or auth.uid() = user2_id);
+
+-- Reactions and Pinned Messages
+create policy "Users can react to messages" on message_reactions
+  for insert with check (auth.uid() = user_id);
+
+create policy "Everyone can view reactions" on message_reactions
+  for select using (true);
+
+create policy "Users can manage pinned messages" on pinned_messages
+  for all using (auth.uid() = user_id);
 
 -- Cron Job for 15-hour Purge (Run this in Supabase SQL Editor)
 -- select cron.schedule('purge-messages', '0 */15 * * *', $$

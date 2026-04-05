@@ -1,13 +1,16 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { encryptMessage, decryptMessage } from "@/lib/crypto";
 import { useAuthStore } from "@/store/useAuthStore";
 
-export default function ChatPage() {
+import { Suspense } from "react";
+
+function ChatRoom() {
   const router = useRouter();
-  const { id: recipientId } = useParams() as { id: string };
+  const searchParams = useSearchParams();
+  const recipientId = searchParams.get("id");
   const { user, privateKeyBase64, isLoading: authLoading } = useAuthStore();
   
   const [msg, setMsg] = useState("");
@@ -195,5 +198,13 @@ export default function ChatPage() {
         </button>
       </div>
     </div>
+  );
+}
+
+export default function ChatPage() {
+  return (
+    <Suspense fallback={<div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "var(--t2)" }}>Shielding conversation...</div>}>
+      <ChatRoom />
+    </Suspense>
   );
 }
